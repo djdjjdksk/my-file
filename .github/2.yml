@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# 🔹 تأكد من تشغيل السكربت بصلاحيات root
+if [[ $EUID -ne 0 ]]; then
+   echo "🚨 يجب تشغيل هذا السكربت بصلاحيات root!"
+   exit 1
+fi
+
+echo "🔹 تحديث المستودعات وحذف أي إعدادات قديمة..."
+rm -rf /var/lib/apt/lists/*
+apt clean
+apt update
+
+echo "🔹 إزالة أي مستودعات كالي قديمة..."
+sed -i '/kali-rolling/d' /etc/apt/sources.list
+
+echo "🔹 إضافة مستودعات كالي لينكس الجديدة..."
+echo "deb http://http.kali.org/kali kali-rolling main non-free contrib" | tee /etc/apt/sources.list
+wget -qO - https://archive.kali.org/archive-key.asc | apt-key add -
+
+echo "🔹 تحديث المستودعات بعد التغيير..."
+apt update && apt full-upgrade -y
+
+# 🔹 إنشاء مجلد لحفظ ملفات التثبيت
+mkdir -p ~/airgeddon-tools
+
+# 🔹 قائمة الأدوات الأساسية لـ Airgeddon + إضافات أخرى مفيدة
+TOOLS=(
+  bash iw aircrack-ng macchanger ethtool procps net-tools
+  hostapd lighttpd bettercap isc-dhcp-server crunch
+  mdk4 sslstrip ettercap-graphical xterm screen tmux
+  python3 python3-pip dnsmasq dsniff rfkill git unzip
+  gawk curl nano sudo iptables wirelesstools pciutils
+  usbutils lsof socat nmap jq wget tshark
+)
+
+echo "🔹 تنزيل الأدوات المطلوبة..."
+apt install -y ${TOOLS[@]}
+
+echo "🔹 تحميل ملفات التثبيت للاستخدام بدون إنترنت..."
+cd ~/airgeddon-tools
+apt download ${TOOLS[@]}
+
+echo "🔹 ضغط الملفات إلى أرشيف..."
+tar -czvf airgeddon-tools.tar.gz ~/airgeddon-tools
+
+echo "✅ تم تنزيل جميع الأدوات وحفظها في ~/airgeddon-tools"
