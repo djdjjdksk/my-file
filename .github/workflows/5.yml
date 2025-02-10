@@ -1,0 +1,39 @@
+name: Install Airgeddon Tools (No Kali Linux Core)
+
+on: [push, workflow_dispatch]
+
+jobs:
+  install-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔹 تحديث المستودعات
+        run: |
+          sudo apt update && sudo apt upgrade -y
+
+      - name: 🔹 تثبيت الأدوات الأساسية لـ Airgeddon
+        run: |
+          sudo apt install -y \
+            bash iw aircrack-ng macchanger ethtool procps net-tools \
+            hostapd lighttpd bettercap isc-dhcp-server crunch \
+            mdk4 ettercap-graphical xterm screen tmux \
+            python3 python3-pip dnsmasq dsniff rfkill git unzip \
+            gawk curl nano sudo iptables pciutils usbutils lsof \
+            socat nmap jq wget tshark
+
+      - name: 🔹 حفظ الأدوات كملفات تثبيت
+        run: |
+          mkdir -p airgeddon-tools
+          cd airgeddon-tools
+          apt download bash iw aircrack-ng macchanger ethtool procps net-tools \
+            hostapd lighttpd bettercap isc-dhcp-server crunch \
+            mdk4 ettercap-graphical xterm screen tmux \
+            python3 python3-pip dnsmasq dsniff rfkill git unzip \
+            gawk curl nano sudo iptables pciutils usbutils lsof \
+            socat nmap jq wget tshark
+          tar -czvf airgeddon-tools.tar.gz *
+
+      - name: 🔹 رفع الملفات إلى GitHub Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: airgeddon-tools
+          path: airgeddon-tools/airgeddon-tools.tar.gz
