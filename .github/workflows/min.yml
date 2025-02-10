@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# تحديث المستودعات
+echo "🔄 تحديث المستودعات..."
+sudo apt update -y && sudo apt upgrade -y
+
+# قائمة الأدوات المطلوبة
+tools=(
+    # أدوات Airgeddon الأساسية
+    aircrack-ng bash gawk iproute2 iw pciutils procps tmux xterm
+
+    # أدوات Airgeddon الاختيارية
+    asleap bettercap beef-xss bully crunch curl dnsmasq ethtool hashcat
+    hostapd hostapd-wpe hydra john lighttpd macchanger mdk3 mdk4 nmap pyrit
+    python3 python3-pip screen sslstrip xdotool
+
+    # أدوات كالي لينكس الإضافية
+    metasploit-framework wireshark burpsuite gobuster sublist3r theharvester
+    dnsenum dmitry whatweb amass netcat tcpdump ettercap-text-only mitmproxy
+    exploitdb searchsploit python3-venv nodejs npm
+
+    # أدوات إضافية يحتاجها Airgeddon
+    reaver pixiewps rfkill hcxdumptool hcxtools iwconfig wifite hash-identifier responder
+
+    # برامج إضافية أساسية
+    firefox telegram-desktop vlc zoom bottles
+)
+
+# تثبيت الأدوات
+echo "📦 جاري تثبيت الأدوات..."
+for tool in "${tools[@]}"; do
+    echo "🔹 محاولة تثبيت: $tool"
+    if sudo apt install -y "$tool"; then
+        echo "✅ تم تثبيت $tool بنجاح!"
+    else
+        echo "❌ فشل تثبيت $tool، سيتم تخطيه..."
+    fi
+done
+
+echo "🎉 تم الانتهاء من تثبيت الأدوات!"
