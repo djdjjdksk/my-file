@@ -1,0 +1,135 @@
+name: Download Airgeddon & Kali Dependencies
+
+on: [push, workflow_dispatch]
+
+jobs:
+  download-dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠️ تحديث المستودعات وإضافة مستودعات كالي لينكس
+        run: |
+          sudo apt update
+          sudo apt install -y software-properties-common apt-transport-https wget curl gnupg
+          
+          # إضافة مستودعات كالي لينكس
+          echo "deb http://http.kali.org/kali kali-rolling main non-free contrib" | sudo tee -a /etc/apt/sources.list
+          wget -q -O - https://archive.kali.org/archive-key.asc | sudo apt-key add -
+          sudo apt update
+
+      - name: 📂 إنشاء مجلد لحفظ ملفات التثبيت
+        run: mkdir -p airgeddon-tools
+
+      - name: 📥 تنزيل ملفات التثبيت للأدوات المطلوبة
+        run: |
+          cd airgeddon-tools
+          tools=(
+            # أدوات Airgeddon الأساسية
+            aircrack-ng
+            bash
+            gawk
+            iproute2
+            iw
+            pciutils
+            procps
+            tmux
+            xterm
+            airmon-ng
+            airodump-ng
+            aireplay-ng
+            ip
+            lspci
+            ps
+            awk
+            # أدوات Airgeddon الاختيارية
+            asleap
+            bettercap
+            beef-xss
+            bully
+            beef
+            crunch
+            curl
+            dnsmasq
+            ethtool
+            hashcat
+            hostapd
+            hostapd-wpe
+            hydra
+            john
+            lighttpd
+            macchanger
+            mdk3
+            mdk4
+            nmap
+            pyrit
+            python3
+            python3-pip
+            screen
+            sslstrip
+            xdotool
+            nft
+            dhcpd
+            packetforge-ng
+            wpaclean
+            etterlog
+            tshark
+            wash
+            hcxdumptool
+            hcxpcapngtool
+            openssl
+            # أدوات كالي لينكس الإضافية
+            metasploit-framework
+            wireshark
+            burpsuite
+            gobuster
+            sublist3r
+            theharvester
+            dnsenum
+            dmitry
+            whatweb
+            amass
+            netcat
+            tcpdump
+            ettercap-text-only
+            mitmproxy
+            exploitdb
+            searchsploit
+            python3-venv
+            nodejs
+            npm
+            # أدوات إضافية يحتاجها Airgeddon
+            reaver
+            pixiewps
+            rfkill
+            hcxdumptool
+            hcxtools
+            iwconfig
+            wifite
+            hash-identifier
+            responder
+            # برامج إضافية
+            firefox
+            telegram-desktop
+            vlc
+            zoom
+            bottles
+          )
+          
+          for tool in "${tools[@]}"; do
+            if apt-cache show "$tool" > /dev/null 2>&1; then
+              apt download "$tool" && echo "[✔] Downloaded: $tool"
+            else
+              echo "[✘] Not Found in Ubuntu repositories: $tool"
+            fi
+          done
+
+      - name: 📦 ضغط ملفات التثبيت
+        run: |
+          cd airgeddon-tools
+          tar -czvf ../airgeddon-tools.tar.gz ./*
+
+      - name: ⬆️ رفع الأرشيف إلى GitHub Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: airgeddon-tools
+          path: airgeddon-tools.tar.gz
