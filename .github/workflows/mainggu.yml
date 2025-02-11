@@ -1,0 +1,47 @@
+name: Download and Upload Apps
+
+on: 
+  workflow_dispatch # تشغيله يدويًا
+
+jobs:
+  download_and_upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: sudo apt update && sudo apt install -y zip wget curl
+
+      - name: Download Apps
+        run: |
+          mkdir apps
+          cd apps
+
+          # تنزيل الحزم بصيغة .deb
+          wget -O vlc.deb https://mirrors.edge.kernel.org/ubuntu/pool/universe/v/vlc/vlc_3.0.16-1_amd64.deb
+          wget -O telegram.deb https://telegram.org/dl/desktop/linux
+          wget -O steam.deb https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
+          wget -O blender.tar.xz https://download.blender.org/release/Blender3.6/blender-3.6.0-linux-x64.tar.xz
+
+          # تنزيل Unity Hub
+          wget -O unityhub.AppImage https://public-cdn.cloud.unity3d.com/hub/prod/UnityHub.AppImage
+
+          # تنزيل Android Studio
+          wget -O android-studio.tar.gz https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2023.1.1.24/android-studio-2023.1.1.24-linux.tar.gz
+
+          # تنزيل Bottles (Flatpak)
+          flatpak install -y --download-only flathub com.usebottles.bottles
+
+      - name: Compress Files
+        run: |
+          zip -r apps.zip apps/
+
+      - name: Upload to GitHub Releases
+        uses: softprops/action-gh-release@v1
+        with:
+          files: apps.zip
+          tag_name: v1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
